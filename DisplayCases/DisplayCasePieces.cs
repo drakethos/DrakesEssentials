@@ -7,7 +7,7 @@ using UnityEngine;
 namespace DrakesEssentials.DisplayCases;
 
 /// <summary>
-/// Display Case (6 slots) and Small Display Case (3), dressed from Packs/DisplayCase (code in Generated/DisplayCase).
+/// Display Case (7 slots) and Small Display Case (3), dressed from Packs/DisplayCase (code in Generated/DisplayCase).
 /// Same prefab names as DrakesItemShop, so placed cases move between the two mods.
 /// </summary>
 internal static class DisplayCasePieces
@@ -62,6 +62,7 @@ internal static class DisplayCasePieces
             behaviour.m_floorZ0 = variant.FloorZ0;
             behaviour.m_floorZ1 = variant.FloorZ1;
             PieceManager.Instance.AddPiece(custom);
+            PieceIcons.Render(custom.Piece, -60f);
         }
         _registered = true;
         EssentialsPlugin.Log.LogInfo("Registered display cases.");

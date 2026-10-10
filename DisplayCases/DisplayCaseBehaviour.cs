@@ -179,6 +179,16 @@ public class DisplayCaseBehaviour : MonoBehaviour
                 DestroyImmediate(behaviours[i]);
         foreach (var nview in copy.GetComponentsInChildren<ZNetView>(true))
             DestroyImmediate(nview);
+        // Small items would be culled by their LOD group once shrunk onto the shelf: keep only the nearest LOD's meshes.
+        foreach (var lods in copy.GetComponentsInChildren<LODGroup>(true))
+        {
+            var levels = lods.GetLODs();
+            for (var level = 1; level < levels.Length; level++)
+                foreach (var lodRenderer in levels[level].renderers)
+                    if (lodRenderer != null)
+                        lodRenderer.enabled = false;
+            DestroyImmediate(lods);
+        }
         foreach (var joint in copy.GetComponentsInChildren<Joint>(true))
             DestroyImmediate(joint);
         foreach (var body in copy.GetComponentsInChildren<Rigidbody>(true))

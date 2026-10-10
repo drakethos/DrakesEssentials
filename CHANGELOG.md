@@ -1,5 +1,12 @@
 ﻿# Changelog
 
+## 0.1.1
+- **Armor on racks hangs worn**, the way an armor stand shows it: chest pieces and capes from the neck, helmets by the top, legs at the hips (baked once per item, so racks stay cheap).
+- **Display Case holds 7 items** (was 6).
+- Small items on display cases no longer vanish once shrunk onto the jute (they keep their closest detail level).
+- Wall racks can go on tilted surfaces.
+- Display cases and racks have their own hammer icons, rendered from the piece instead of the chest they're made from.
+
 ## 0.1.0
 First release: the best pieces from the DrakeMods suite, on their own (no DrakeModsLibs needed).
 - **Display Case** (6 slots) and **Small Display Case** (3 slots), from DrakesItemShop: glass and wood cases that show what's inside lying on jute. Fill them from the door side; the glass door slides open while you do.

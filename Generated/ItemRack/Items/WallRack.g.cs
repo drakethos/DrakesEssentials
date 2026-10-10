@@ -41,6 +41,7 @@ internal static class WallRack
         if (prefab.GetComponent<global::Piece>() is { } c1)
         {
             c1.m_allowRotatedOverlap = true;
+            c1.m_notOnTiltingSurface = false;
         }
         if (prefab.GetComponent<global::WearNTear>() is { } c2)
         {

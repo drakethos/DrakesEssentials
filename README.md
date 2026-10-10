@@ -7,7 +7,7 @@ pieces you'd want, in one small mod.
 
 | Piece | Hammer tab | From | What it does |
 |-------|-----------|------|--------------|
-| **Display Case** / **Small Display Case** | Furniture | DrakesItemShop | Glass and wood cases (6 or 3 slots). What's inside lies on the jute, one spot per slot, flat and sized to fit. Fill it from the door side: the glass door slides open while you do. From the glass side it's just looked at. |
+| **Display Case** / **Small Display Case** | Furniture | DrakesItemShop | Glass and wood cases (7 or 3 slots). What's inside lies on the jute, one spot per slot, flat and sized to fit. Fill it from the door side: the glass door slides open while you do. From the glass side it's just looked at. |
 | **Armor racks** / **Weapon racks** / **Wall racks** | Furniture | DrakesItemShop | Finewood racks with iron hooks and pegs. Free-standing armor and weapon racks (6 or 4 slots) take only armor or only weapons and shields; wall racks (5 or 3) take both. What's inside hangs on the rack: weapons and shields like on an item stand, armor upright on its hook. |
 | **Public doors and chests** | Public | LockSmith | An always-open copy of every buildable door and chest, vanilla and other mods (`*_public`). Anyone can open them, wards or not. |
 | **Paper (wall)** / **Paper (flat)** | Furniture | DrakesRenameit | A blank sheet on a wall or lying flat. Write on it like a sign. |

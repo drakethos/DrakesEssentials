@@ -43,7 +43,8 @@
       "m_height": 1
     },
     "Piece": {
-      "m_allowRotatedOverlap": true
+      "m_allowRotatedOverlap": true,
+      "m_notOnTiltingSurface": false
     },
     "WearNTear": {
       "m_burnable": true,

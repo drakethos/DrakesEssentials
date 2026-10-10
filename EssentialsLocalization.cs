@@ -8,7 +8,7 @@ internal static class EssentialsLocalization
     {
         var loc = LocalizationManager.Instance.GetLocalization();
         loc.AddTranslation("English", "drake_display_case_name", "Display Case");
-        loc.AddTranslation("English", "drake_display_case_desc", "Glass case to show your things (6 slots). Fill it from the door side.");
+        loc.AddTranslation("English", "drake_display_case_desc", "Glass case to show your things (7 slots). Fill it from the door side.");
         loc.AddTranslation("English", "drake_display_case_small_name", "Small Display Case");
         loc.AddTranslation("English", "drake_display_case_small_desc", "Small glass case to show your things (3 slots). Fill it from the door side.");
         loc.AddTranslation("English", "drake_armor_rack_name", "Armor Rack");

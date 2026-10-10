@@ -126,6 +126,7 @@ internal static class ItemRackPieces
             behaviour.m_front = variant.Front;
             behaviour.m_pitch = variant.Rows[0].Length > 1 ? Mathf.Abs(variant.Rows[0][0].x - variant.Rows[0][1].x) : 0.6f;
             PieceManager.Instance.AddPiece(custom);
+            PieceIcons.Render(custom.Piece, 25f);
         }
         _registered = true;
         EssentialsPlugin.Log.LogInfo("Registered armor and weapon racks.");

@@ -135,6 +135,10 @@ public class ItemRackBehaviour : MonoBehaviour
         holder.SetParent(_display, false);
         holder.localPosition = hangPoint;
 
+        // Armor looks the way an armor stand shows it: worn, on an invisible body.
+        if (IsArmor(item) && HangWorn(item, holder))
+            return;
+
         var held = IsWeapon(item) && HangLikeItemStand(item, holder);
         if (!held && !HangUpright(item.m_dropPrefab, holder))
         {
@@ -155,6 +159,39 @@ public class ItemRackBehaviour : MonoBehaviour
         // Never behind the bar/board the hooks come out of.
         if (min.z < m_front + 0.005f)
             holder.localPosition += Vector3.forward * (m_front + 0.005f - min.z);
+    }
+
+    /// <summary>
+    /// Armor, shown worn as on an armor stand (baked once per item by <see cref="WornArmor"/>, so each hook only holds
+    /// a few static meshes). Hung from the hook at the neck (chest, cape), the top of the head (helmet) or the hips
+    /// (legs). False when the item can't be shown that way.
+    /// </summary>
+    private static bool HangWorn(ItemDrop.ItemData item, Transform holder)
+    {
+        if (WornArmor.Get(item) is not { } look)
+            return false;
+
+        var worn = new GameObject("worn").transform;
+        worn.SetParent(holder, false);
+        foreach (var part in look.Parts)
+        {
+            var go = new GameObject("part");
+            go.transform.SetParent(worn, false);
+            go.transform.localPosition = part.Pose.GetColumn(3);
+            go.transform.localRotation = part.Pose.rotation;
+            go.transform.localScale = part.Pose.lossyScale;
+            go.AddComponent<MeshFilter>().sharedMesh = part.Mesh;
+            go.AddComponent<MeshRenderer>().sharedMaterials = part.Materials;
+        }
+
+        var anchorY = item.m_shared.m_itemType switch
+        {
+            ItemDrop.ItemData.ItemType.Helmet => look.Head.y + 0.2f,
+            ItemDrop.ItemData.ItemType.Legs => look.Head.y * 0.57f,
+            _ => look.Head.y - 0.1f,
+        };
+        worn.localPosition = -new Vector3(look.Head.x, anchorY, look.Head.z);
+        return true;
     }
 
     /// <summary>
@@ -261,7 +298,7 @@ public class ItemRackBehaviour : MonoBehaviour
     /// A copy of <paramref name="source"/> made while it's inactive (so none of its scripts wake up), stripped of
     /// scripts, physics, sound and particles: only meshes and lights remain. Returned inactive.
     /// </summary>
-    private static GameObject? StillCopy(GameObject source)
+    private static GameObject StillCopy(GameObject source)
     {
         var wasActive = source.activeSelf;
         source.SetActive(false);
