@@ -7,10 +7,14 @@ code from the repo root. The export targets DrakeModsLibs' helpers; the `sed` po
 ```
 DrakesAssetForge export-code Packs/DisplayCase . --look-only --libs --embed --into --namespace DrakesEssentials.Generated.Cases --folder Generated/DisplayCase
 DrakesAssetForge export-code Packs/Paper . --look-only --libs --embed --into --namespace DrakesEssentials.Generated.Paper --folder Generated/Paper
+DrakesAssetForge export-code Packs/ItemRack . --look-only --libs --embed --into --namespace DrakesEssentials.Generated.Racks --folder Generated/ItemRack
 sed -i 's/using DrakeModsLibs\.Forge;/using DrakesEssentials.Forge;/' Generated/*/Items/*.g.cs
 ```
 
 - `DisplayCase`: same recipes and models as DrakesItemShop's `Forge/DisplayCase` (keep them in step).
   `make_display_case.py` builds the models; see DrakesItemShop's `Forge/DisplayCase/README.md`.
+- `ItemRack`: same recipes and models as DrakesItemShop's `Forge/ItemRack` (keep them in step), armor and weapon
+  racks. `make_item_rack.py` builds the models; see DrakesItemShop's `Forge/ItemRack/README.md`. Hang points are in
+  `ItemRacks/ItemRackPieces.cs`.
 - `Paper`: DrakesRenameit's blank sheet recipes and paper art, with paper-sized collision. The text placement on the
   sheet is in `Paper/PaperPieces.cs`.

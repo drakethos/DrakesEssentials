@@ -47,6 +47,7 @@
     <Compile Include="Forge\*.cs" />
     <Compile Include="Forge\Gltf\*.cs" />
     <Compile Include="DisplayCases\*.cs" />
+    <Compile Include="ItemRacks\*.cs" />
     <Compile Include="Paper\*.cs" />
     <Compile Include="PublicPieces\*.cs" />
     <Compile Include="Generated\*\Items\*.g.cs" />

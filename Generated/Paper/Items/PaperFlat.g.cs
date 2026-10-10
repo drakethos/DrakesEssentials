@@ -18,14 +18,14 @@ internal static class PaperFlat
     /// <summary>Adds the recipe's sprites under <paramref name="parent"/>; sizes and positions are multiplied by <paramref name="scale"/>.</summary>
     internal static void Build(Transform parent, float scale = 1f)
     {
-        ForgeLook.AddSprite(Owner, parent, "textures/paper_sheet.png", 0.2159f * scale, 0.2794f * scale, new Vector3(0f, 0.002f, 0.1397f) * scale, new Vector3(-90f, 0f, 0f), true);
+        ForgeLook.AddSprite(Owner, parent, "textures/paper_sheet.png", 0.3239f * scale, 0.4191f * scale, new Vector3(0f, 0.002f, 0.2095f) * scale, new Vector3(-90f, 0f, 0f), true);
     }
 
     /// <summary>Materials, mesh, settings, snap points, fire and glow on the prefab itself.</summary>
     internal static void Dress(GameObject prefab)
     {
         // Look
-        ForgeLook.CollisionBox(prefab, new Vector3(0f, 0.008f, 0.1397f), new Vector3(0.22f, 0.016f, 0.285f));
+        ForgeLook.CollisionBox(prefab, new Vector3(0f, 0.008f, 0.2095f), new Vector3(0.3339f, 0.016f, 0.4291f));
         ForgeLook.HideMesh(prefab);
     }
 

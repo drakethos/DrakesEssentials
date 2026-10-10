@@ -15,7 +15,9 @@ internal static class PieceCosts
     /// <summary>Rewrites a registered piece's cost; items that don't exist are skipped with a warning.</summary>
     public static void Apply(string pieceName, string text, string fallbackItem, int fallbackAmount)
     {
-        if (ObjectDB.instance == null || PieceManager.Instance.GetPiece(pieceName)?.Piece is not { } piece)
+        // At the main menu ObjectDB exists but holds no items yet: the costs from registration stand until it does.
+        if (ObjectDB.instance == null || ObjectDB.instance.GetItemPrefab("Wood") == null
+            || PieceManager.Instance.GetPiece(pieceName)?.Piece is not { } piece)
             return;
 
         var resources = new List<Piece.Requirement>();

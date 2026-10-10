@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using DrakesEssentials.DisplayCases;
+using DrakesEssentials.ItemRacks;
 using DrakesEssentials.Paper;
 using DrakesEssentials.PublicPieces;
 using HarmonyLib;
@@ -18,10 +19,12 @@ namespace DrakesEssentials;
 [BepInDependency(Jotunn.Main.ModGuid)]
 [BepInDependency(ItemShopGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(LockSmithGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(RenameItGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public partial class EssentialsPlugin : BaseUnityPlugin
 {
     internal const string ItemShopGuid = "com.drakesworkshop.itemshop";
     internal const string LockSmithGuid = "com.drakesworkshop.locksmith";
+    internal const string RenameItGuid = "com.drakesworkshop.renameit";
 
     internal static EssentialsPlugin Instance = null!;
     internal static ManualLogSource Log = null!;
@@ -49,7 +52,16 @@ public partial class EssentialsPlugin : BaseUnityPlugin
         else
             DisplayCasePieces.Register();
 
+        if (IsInstalled(ItemShopGuid))
+            Log.LogInfo("DrakesItemShop is installed: it provides the armor and weapon racks.");
+        else
+            ItemRackPieces.Register();
+
+        // RenameIt's paper has other prefab names, so Essentials' sheets stay registered (placed ones keep working)
+        // and are only taken out of the hammer (PaperPieces.Apply).
         PaperPieces.Register();
+        if (IsInstalled(RenameItGuid))
+            Log.LogInfo("DrakesRenameit is installed: it provides the paper; Essentials' sheets are hidden from the hammer.");
 
         if (IsInstalled(LockSmithGuid))
             Log.LogInfo("LockSmith is installed: it provides the public doors and chests.");
@@ -63,6 +75,7 @@ public partial class EssentialsPlugin : BaseUnityPlugin
     private static void ApplySettings()
     {
         DisplayCasePieces.Apply();
+        ItemRackPieces.Apply();
         PaperPieces.Apply();
         PublicPieceRegistration.Apply();
     }
