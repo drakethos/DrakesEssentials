@@ -1,0 +1,651 @@
+// Ported from LockSmith (Access/PublicPieceRegistration.cs); keep in step with it.
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Jotunn.Configs;
+using Jotunn.Entities;
+using Jotunn.Managers;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace DrakesEssentials.PublicPieces;
+
+/// <summary>
+/// Ported from LockSmith (Access/PublicPieceRegistration.cs): finds every buildable ward-locked chest and door
+/// (vanilla and other mods) and registers an always-public "_public" hammer copy (tab Public). Same prefab names as
+/// LockSmith, so placed ones move between the two mods. Its config, lock menu and key hooks are left out.
+/// </summary>
+internal static class PublicPieceRegistration
+{
+    private const string SuffixToken = "drake_essentials_public_suffix";
+    private const string DescToken = "drake_essentials_public_desc";
+
+    public const string PrefabSuffix = "_public";
+    public const string HammerCategory = "Public";
+
+    private static readonly HashSet<string> RegisteredPublicPrefabs =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly HashSet<string> AttemptedDonors =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    private static bool _hooksInstalled;
+    private static bool _delayedScanStarted;
+    private static bool _categoryEnsured;
+
+    /// <summary>True when this prefab/instance is a LockSmith public hammer clone.</summary>
+    public static bool IsPublicPrefab(string? prefabName)
+    {
+        if (string.IsNullOrEmpty(prefabName))
+            return false;
+
+        var name = Utils.GetPrefabName(prefabName);
+        if (RegisteredPublicPrefabs.Contains(name))
+            return true;
+
+        return name.EndsWith(PrefabSuffix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>First pass now, then again as late piece mods register theirs.</summary>
+    public static void Start() => TryRegisterAll("vanilla prefabs");
+
+    /// <summary>Hammer visibility follows the synced on/off switch; placed pieces stay public either way.</summary>
+    public static void Apply()
+    {
+        foreach (var name in RegisteredPublicPrefabs)
+            if (PieceManager.Instance.GetPiece(name)?.Piece is { } piece)
+                piece.m_enabled = EssentialsConfig.PublicPiecesEnabled.Value;
+    }
+
+    /// <summary>Safe to call again; dedupes donors.</summary>
+    private static void TryRegisterAll(string reason)
+    {
+        try
+        {
+            EnsureHooks();
+            var registered = RegisterPass(reason);
+            if (registered > 0)
+            {
+                EssentialsPlugin.Log.LogInfo($"Public pieces: registered {registered} clone(s) ({reason}).");
+                Apply();
+            }
+        }
+        catch (Exception ex)
+        {
+            EssentialsPlugin.Log.LogError($"Public piece registration failed ({reason}): {ex}");
+        }
+    }
+
+    private static void EnsureHooks()
+    {
+        if (_hooksInstalled)
+            return;
+
+        _hooksInstalled = true;
+        PieceManager.OnPiecesRegistered += OnPiecesRegistered;
+
+        if (!_delayedScanStarted && EssentialsPlugin.Instance != null)
+        {
+            _delayedScanStarted = true;
+            EssentialsPlugin.Instance.StartCoroutine(DelayedRescan());
+        }
+    }
+
+    private static void OnPiecesRegistered()
+    {
+        TryRegisterAll("OnPiecesRegistered");
+    }
+
+    private static IEnumerator DelayedRescan()
+    {
+        // Late piece mods often finish after the first vanilla pass.
+        yield return new WaitForSeconds(2f);
+        TryRegisterAll("delayed");
+        yield return new WaitForSeconds(5f);
+        TryRegisterAll("delayed-late");
+    }
+
+    private static int RegisterPass(string reason)
+    {
+        // The display cases are chests too, but a public copy of a shop case makes no sense.
+        var deny = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Drake_DisplayCase", "Drake_DisplayCaseSmall" };
+        var allow = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var donors = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var name in EnumerateCandidatePrefabNames())
+            donors.Add(name);
+
+        foreach (var name in allow)
+            donors.Add(name);
+
+        var buildable = CollectBuildablePrefabNames();
+        var count = 0;
+        foreach (var donorName in donors)
+        {
+            if (string.IsNullOrWhiteSpace(donorName))
+                continue;
+            if (deny.Contains(donorName))
+                continue;
+            if (AttemptedDonors.Contains(donorName))
+                continue;
+
+            var forceAllow = allow.Contains(donorName);
+
+            // Only pieces a player can actually build. World-spawned chests/doors (dungeon, treasure,
+            // Dvergr town) have a Piece too but sit in no build tool. Not "skipped": a mod may add
+            // its piece to a table later, so later passes look again.
+            if (!forceAllow && !buildable.Contains(donorName))
+                continue;
+
+            var result = TryRegisterClone(donorName, forceAllow);
+            if (result == RegisterResult.Missing)
+                continue; // retry on deferred passes
+
+            AttemptedDonors.Add(donorName);
+            if (result == RegisterResult.Registered)
+                count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>Prefab names placeable from any build tool's piece table (hammer, cultivator, mod tools).</summary>
+    private static HashSet<string> CollectBuildablePrefabNames()
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        PieceTable[] tables;
+        try
+        {
+            tables = Resources.FindObjectsOfTypeAll<PieceTable>();
+        }
+        catch
+        {
+            return names;
+        }
+
+        foreach (var table in tables)
+        {
+            if (table == null || table.m_pieces == null)
+                continue;
+            foreach (var go in table.m_pieces)
+            {
+                if (go)
+                    names.Add(Utils.GetPrefabName(go));
+            }
+        }
+
+        return names;
+    }
+
+    private enum RegisterResult
+    {
+        Missing,
+        Skipped,
+        Registered
+    }
+
+    private static RegisterResult TryRegisterClone(string donorName, bool forceAllow)
+    {
+        var publicName = donorName + PrefabSuffix;
+        if (RegisteredPublicPrefabs.Contains(publicName) || PieceManager.Instance.GetPiece(publicName) != null)
+        {
+            RegisteredPublicPrefabs.Add(publicName);
+            return RegisterResult.Skipped;
+        }
+
+        GameObject? donor = null;
+        try
+        {
+            donor = PrefabManager.Instance.GetPrefab(donorName);
+        }
+        catch
+        {
+            donor = null;
+        }
+
+        if (!donor)
+            donor = FindLoadedPrefab(donorName);
+
+        if (!donor)
+        {
+            if (forceAllow)
+                EssentialsPlugin.Log.LogWarning($"Public pieces: allow-list donor '{donorName}' not found yet.");
+            return RegisterResult.Missing;
+        }
+
+        if (!IsEligibleDonor(donor, forceAllow, out var skipReason))
+        {
+            EssentialsPlugin.Log.LogDebug($"Public pieces: skip '{donorName}' ({skipReason}).");
+            return RegisterResult.Skipped;
+        }
+
+        try
+        {
+            var piece = donor.GetComponent<Piece>();
+            if (piece == null)
+                piece = donor.GetComponentInChildren<Piece>(true);
+            if (piece == null)
+                return RegisterResult.Skipped;
+
+            var displayName = BuildDisplayName(piece);
+            var config = new PieceConfig
+            {
+                PieceTable = PieceTables.Hammer,
+                Category = HammerCategory,
+                Enabled = true,
+                Name = displayName,
+                Description = BuildPublicDescription(piece),
+                AllowedInDungeons = piece.m_allowedInDungeons
+            };
+
+            CopyRequirements(piece, config);
+            CopyCraftingStation(piece, config);
+
+            EnsurePublicCategory();
+
+            var custom = new CustomPiece(publicName, donorName, config);
+            if (custom.PiecePrefab == null || custom.Piece == null)
+            {
+                EssentialsPlugin.Log.LogWarning($"Public pieces: CustomPiece failed for '{donorName}'.");
+                return RegisterResult.Skipped;
+            }
+
+            ApplyAlwaysPublic(custom.PiecePrefab);
+            StampPublicIdentity(custom.PiecePrefab, custom.Piece);
+            custom.Piece.m_name = displayName;
+
+            if (!PieceManager.Instance.AddPiece(custom))
+            {
+                EssentialsPlugin.Log.LogWarning($"Public pieces: AddPiece rejected '{publicName}'.");
+                return RegisterResult.Skipped;
+            }
+
+            RegisteredPublicPrefabs.Add(publicName);
+            return RegisterResult.Registered;
+        }
+        catch (Exception ex)
+        {
+            EssentialsPlugin.Log.LogWarning($"Public pieces: failed cloning '{donorName}': {ex.Message}");
+            return RegisterResult.Skipped;
+        }
+    }
+
+    private static string BuildDisplayName(Piece piece)
+    {
+        var raw = string.IsNullOrWhiteSpace(piece.m_name) ? piece.name : piece.m_name;
+        var localized = WithLocalizedPublicSuffix(raw);
+        if (string.IsNullOrWhiteSpace(localized))
+            localized = piece.name;
+
+        return localized;
+    }
+
+    /// <summary>
+    /// Resolve the donor token first, then append the translated suffix as plain text.
+    /// Valheim treats a leading <c>$</c> string as a single key, so two tokens cannot be glued.
+    /// </summary>
+    private static string WithLocalizedPublicSuffix(string? raw)
+    {
+        var localized = LocalizeToken(raw);
+        var suffix = LocalizedPhrase(SuffixToken, " (public)");
+        if (localized.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            return localized;
+
+        // Still a single key — leave it so hover can localize the donor name.
+        if (localized.Length > 0 && localized[0] == '$')
+            return localized;
+
+        return localized + suffix;
+    }
+
+    /// <summary>Hammer description: localized donor text, then the gold always-open warning.</summary>
+    private static string BuildPublicDescription(Piece? piece)
+    {
+        var warning = LocalizedPhrase(
+            DescToken,
+            "<color=#FFCC33>Always open to anyone. This cannot be locked.</color>");
+        var current = piece ? piece.m_description : null;
+        var text = LocalizeToken(current);
+        if (text.Length > 0 && text[0] == '$')
+            text = string.Empty;
+
+        if (text.Length == 0)
+            return warning;
+
+        if (text.IndexOf(DescToken, StringComparison.Ordinal) >= 0
+            || text.IndexOf(warning, StringComparison.Ordinal) >= 0)
+            return text;
+
+        return text + "\n" + warning;
+    }
+
+    private static string LocalizeToken(string? raw)
+    {
+        var text = raw ?? string.Empty;
+        var glued = "$" + SuffixToken;
+        var idx = text.IndexOf(glued, StringComparison.OrdinalIgnoreCase);
+        if (idx >= 0)
+            text = text.Remove(idx, glued.Length);
+
+        if (text.Length == 0)
+            return string.Empty;
+
+        try
+        {
+            if (global::Localization.instance != null)
+                return global::Localization.instance.Localize(text);
+        }
+        catch
+        {
+            return text;
+        }
+
+        return text;
+    }
+
+    private static string LocalizedPhrase(string token, string fallback)
+    {
+        string phrase;
+        try
+        {
+            phrase = global::Localization.instance != null ? global::Localization.instance.Localize("$" + token) : fallback;
+        }
+        catch
+        {
+            return fallback;
+        }
+
+        if (string.IsNullOrEmpty(phrase) || phrase[0] == '$')
+            return fallback;
+
+        // Missing key comes back as [token].
+        if (phrase.Length > 2 && phrase[0] == '[' && phrase[phrase.Length - 1] == ']'
+            && phrase.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
+            return fallback;
+
+        return phrase;
+    }
+
+    /// <summary>
+    /// Door/chest hover uses their own <c>m_name</c>, not <see cref="Piece.m_name"/>.
+    /// Stamp the public suffix there so a placed clone does not look like the donor.
+    /// </summary>
+    private static void StampPublicIdentity(GameObject prefab, Piece? piece)
+    {
+        if (piece)
+            piece.m_description = BuildPublicDescription(piece);
+
+        if (!prefab)
+            return;
+
+        foreach (var container in prefab.GetComponentsInChildren<Container>(true))
+        {
+            if (container != null)
+                container.m_name = WithLocalizedPublicSuffix(container.m_name);
+        }
+
+        foreach (var door in prefab.GetComponentsInChildren<Door>(true))
+        {
+            if (door != null)
+                door.m_name = WithLocalizedPublicSuffix(door.m_name);
+        }
+    }
+
+    private static void CopyRequirements(Piece piece, PieceConfig config)
+    {
+        if (piece.m_resources == null)
+            return;
+
+        foreach (var req in piece.m_resources)
+        {
+            if (req == null || req.m_resItem == null)
+                continue;
+
+            var itemGo = req.m_resItem.gameObject;
+            if (!itemGo)
+                continue;
+
+            var itemName = Utils.GetPrefabName(itemGo);
+            if (string.IsNullOrEmpty(itemName))
+                continue;
+
+            config.AddRequirement(new RequirementConfig
+            {
+                Item = itemName,
+                Amount = Math.Max(1, req.m_amount),
+                AmountPerLevel = req.m_amountPerLevel,
+                Recover = req.m_recover
+            });
+        }
+    }
+
+    private static void CopyCraftingStation(Piece piece, PieceConfig config)
+    {
+        if (piece.m_craftingStation == null || !piece.m_craftingStation)
+            return;
+
+        var stationGo = piece.m_craftingStation.gameObject;
+        if (!stationGo)
+            return;
+
+        var name = Utils.GetPrefabName(stationGo);
+        if (!string.IsNullOrEmpty(name))
+            config.CraftingStation = name;
+    }
+
+    private static void EnsurePublicCategory()
+    {
+        if (_categoryEnsured)
+            return;
+
+        try
+        {
+            // Valheim 1.0 / Jotunn: register the tab before AddPiece so the new-style hammer UI shows it.
+            PieceManager.Instance.AddPieceCategory(HammerCategory);
+            _categoryEnsured = true;
+            EssentialsPlugin.Log.LogInfo($"Public pieces: hammer category '{HammerCategory}' registered.");
+        }
+        catch (Exception ex)
+        {
+            // Category string on PieceConfig still works in many Jotunn builds; keep going.
+            EssentialsPlugin.Log.LogWarning($"Public pieces: AddPieceCategory('{HammerCategory}') failed: {ex.Message}");
+            _categoryEnsured = true;
+        }
+    }
+
+    private static void ApplyAlwaysPublic(GameObject prefab)
+    {
+        foreach (var container in prefab.GetComponentsInChildren<Container>(true))
+        {
+            if (container != null)
+                container.m_checkGuardStone = false;
+        }
+
+        foreach (var door in prefab.GetComponentsInChildren<Door>(true))
+        {
+            if (door != null)
+                door.m_checkGuardStone = false;
+        }
+    }
+
+    private static bool IsEligibleDonor(GameObject donor, bool forceAllow, out string reason)
+    {
+        reason = "";
+        var name = Utils.GetPrefabName(donor);
+        if (IsPublicPrefab(name))
+        {
+            reason = "already public clone";
+            return false;
+        }
+
+        var piece = donor.GetComponent<Piece>() ?? donor.GetComponentInChildren<Piece>(true);
+        if (piece == null)
+        {
+            reason = "no Piece";
+            return false;
+        }
+
+        var containers = donor.GetComponentsInChildren<Container>(true);
+        var doors = donor.GetComponentsInChildren<Door>(true);
+        var hasContainer = containers != null && containers.Length > 0;
+        var hasDoor = doors != null && doors.Length > 0;
+        if (!hasContainer && !hasDoor)
+        {
+            reason = "no Container/Door";
+            return false;
+        }
+
+        if (hasContainer)
+        {
+            foreach (var c in containers!)
+            {
+                if (c == null)
+                    continue;
+                if (c.m_privacy == Container.PrivacySetting.Private
+                    || c.m_privacy == Container.PrivacySetting.Group)
+                {
+                    reason = "private-family chest";
+                    return false;
+                }
+            }
+        }
+
+        if (IsDonorAlreadyPublic(containers, doors))
+        {
+            reason = "already public (m_checkGuardStone false)";
+            return false;
+        }
+
+        if (!forceAllow)
+        {
+            // Prefer buildable pieces; skip prop-like prefabs with no recipe.
+            var hasRecipe = piece.m_resources != null && piece.m_resources.Length > 0;
+            if (!hasRecipe)
+            {
+                reason = "no build requirements";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>True when every Container/Door on the donor is already ward-open.</summary>
+    private static bool IsDonorAlreadyPublic(Container[]? containers, Door[]? doors)
+    {
+        var saw = false;
+        if (containers != null)
+        {
+            foreach (var c in containers)
+            {
+                if (c == null)
+                    continue;
+                saw = true;
+                if (c.m_checkGuardStone)
+                    return false;
+            }
+        }
+
+        if (doors != null)
+        {
+            foreach (var d in doors)
+            {
+                if (d == null)
+                    continue;
+                saw = true;
+                if (d.m_checkGuardStone)
+                    return false;
+            }
+        }
+
+        return saw;
+    }
+
+    private static IEnumerable<string> EnumerateCandidatePrefabNames()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // Vanilla baselines always considered (eligibility still applies).
+        foreach (var name in DefaultDonors())
+        {
+            if (seen.Add(name))
+                yield return name;
+        }
+
+        GameObject[] loaded;
+        try
+        {
+            loaded = Resources.FindObjectsOfTypeAll<GameObject>();
+        }
+        catch
+        {
+            yield break;
+        }
+
+        if (loaded == null)
+            yield break;
+
+        foreach (var go in loaded)
+        {
+            if (!go)
+                continue;
+
+            // Skip scene instances; keep prefab assets.
+            if (go.scene.IsValid())
+                continue;
+
+            var prefabName = Utils.GetPrefabName(go);
+            if (string.IsNullOrEmpty(prefabName) || !seen.Add(prefabName))
+                continue;
+
+            if (IsPublicPrefab(prefabName))
+                continue;
+
+            var hasPiece = go.GetComponent<Piece>() != null || go.GetComponentInChildren<Piece>(true) != null;
+            if (!hasPiece)
+                continue;
+
+            var hasTarget = go.GetComponentInChildren<Container>(true) != null
+                            || go.GetComponentInChildren<Door>(true) != null;
+            if (!hasTarget)
+                continue;
+
+            yield return prefabName;
+        }
+    }
+
+    private static IEnumerable<string> DefaultDonors()
+    {
+        yield return "piece_chest_wood";
+        yield return "piece_chest";
+        yield return "wood_door";
+        yield return "wood_gate";
+        yield return "darkwood_gate";
+    }
+
+    private static GameObject? FindLoadedPrefab(string donorName)
+    {
+        GameObject[] loaded;
+        try
+        {
+            loaded = Resources.FindObjectsOfTypeAll<GameObject>();
+        }
+        catch
+        {
+            return null;
+        }
+
+        if (loaded == null)
+            return null;
+
+        foreach (var go in loaded)
+        {
+            if (!go || go.scene.IsValid())
+                continue;
+            if (string.Equals(Utils.GetPrefabName(go), donorName, StringComparison.OrdinalIgnoreCase))
+                return go;
+        }
+
+        return null;
+    }
+}

@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <ThunderstoreName>DrakesEssentials</ThunderstoreName>
+    <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
+    <RootNamespace>DrakesEssentials</RootNamespace>
+    <AssemblyName>DrakesEssentials</AssemblyName>
+    <Version>0.1.0</Version>
+    <BepInPluginName>DrakesEssentials</BepInPluginName>
+    <BepInGuid>com.drakesworkshop.essentials</BepInGuid>
+    <ModInfoClass>EssentialsPlugin</ModInfoClass>
+    <Description>The best DrakeMods pieces in one small mod: glass display cases that show what's inside, always-public doors and chests, and blank paper you write on like a sign. No DrakeModsLibs needed.</Description>
+    <WebsiteUrl>https://github.com/drakethos/DrakesEssentials</WebsiteUrl>
+    <DeployAfterTargets>ILRepacker</DeployAfterTargets>
+    <!-- Stand-alone: ServerSync is merged into this DLL (ILRepack.targets), no DrakeModsLibs. -->
+    <EmbedServerSync>true</EmbedServerSync>
+  </PropertyGroup>
+  <ItemGroup>
+    <ThunderstoreDependency Include="denikson-BepInExPack_Valheim-5.4.2351" />
+    <ThunderstoreDependency Include="ValheimModding-Jotunn-2.30.2" />
+  </ItemGroup>
+</Project>
