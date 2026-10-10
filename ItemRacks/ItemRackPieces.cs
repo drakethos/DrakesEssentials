@@ -72,19 +72,26 @@ internal static class ItemRackPieces
         new()
         {
             Name = "Drake_WeaponRack", Token = "drake_weapon_rack", ConfigKey = "WeaponRackCost", DefaultCost = "FineWood:10,BronzeNails:6",
-            Kind = ItemRackBehaviour.RackKind.Weapon, Front = 0.065f, RowDrop = new[] { 1.1f },
+            Kind = ItemRackBehaviour.RackKind.Weapon, Front = 0.065f, RowDrop = new[] { 1.1f, 1.1f },
+            // Double-sided: row 0 = front forks, row 1 = back forks (z < 0, items face the other way).
             Rows = new[]
             {
                 new Vector3[] { new(0.8417f, 1.36f, 0.125f), new(0.505f, 1.36f, 0.125f), new(0.1683f, 1.36f, 0.125f),
                                 new(-0.1683f, 1.36f, 0.125f), new(-0.505f, 1.36f, 0.125f), new(-0.8417f, 1.36f, 0.125f) },
+                new Vector3[] { new(0.8417f, 1.36f, -0.105f), new(0.505f, 1.36f, -0.105f), new(0.1683f, 1.36f, -0.105f),
+                                new(-0.1683f, 1.36f, -0.105f), new(-0.505f, 1.36f, -0.105f), new(-0.8417f, 1.36f, -0.105f) },
             },
             Dress = Generated.Racks.Items.WeaponRack.Dress,
         },
         new()
         {
             Name = "Drake_WeaponRackSmall", Token = "drake_weapon_rack_small", ConfigKey = "SmallWeaponRackCost", DefaultCost = "FineWood:7,BronzeNails:4",
-            Kind = ItemRackBehaviour.RackKind.Weapon, Front = 0.065f, RowDrop = new[] { 1.1f },
-            Rows = new[] { new Vector3[] { new(0.4575f, 1.36f, 0.125f), new(0.1525f, 1.36f, 0.125f), new(-0.1525f, 1.36f, 0.125f), new(-0.4575f, 1.36f, 0.125f) } },
+            Kind = ItemRackBehaviour.RackKind.Weapon, Front = 0.065f, RowDrop = new[] { 1.1f, 1.1f },
+            Rows = new[]
+            {
+                new Vector3[] { new(0.4575f, 1.36f, 0.125f), new(0.1525f, 1.36f, 0.125f), new(-0.1525f, 1.36f, 0.125f), new(-0.4575f, 1.36f, 0.125f) },
+                new Vector3[] { new(0.4575f, 1.36f, -0.105f), new(0.1525f, 1.36f, -0.105f), new(-0.1525f, 1.36f, -0.105f), new(-0.4575f, 1.36f, -0.105f) },
+            },
             Dress = Generated.Racks.Items.SmallWeaponRack.Dress,
         },
     };

@@ -4,7 +4,7 @@
     <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
     <RootNamespace>DrakesEssentials</RootNamespace>
     <AssemblyName>DrakesEssentials</AssemblyName>
-    <Version>0.1.1</Version>
+    <Version>0.1.2-beta.1</Version>
     <BepInPluginName>DrakesEssentials</BepInPluginName>
     <BepInGuid>com.drakesworkshop.essentials</BepInGuid>
     <ModInfoClass>EssentialsPlugin</ModInfoClass>

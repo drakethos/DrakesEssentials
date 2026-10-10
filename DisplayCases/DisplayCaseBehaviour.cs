@@ -207,6 +207,21 @@ public class DisplayCaseBehaviour : MonoBehaviour
         return copy;
     }
 
+    /// <summary>
+    /// True when <paramref name="renderer"/> will draw once the copy under <paramref name="root"/> is switched on: enabled,
+    /// and every object between it and the root active. Food also carries its inactive "placed on a table" model, which
+    /// must not count, or the item is sized and centred on both and the visible one ends up buried or off its spot.
+    /// </summary>
+    private static bool WillShow(Renderer renderer, Transform root)
+    {
+        if (!renderer.enabled)
+            return false;
+        for (var t = renderer.transform; t != null && t != root; t = t.parent)
+            if (!t.gameObject.activeSelf)
+                return false;
+        return true;
+    }
+
     /// <summary>Bounds of the copy's meshes in its own root space (renderer bounds are empty while it's inactive).</summary>
     private static bool LocalBounds(Transform root, out Bounds bounds)
     {
@@ -215,6 +230,8 @@ public class DisplayCaseBehaviour : MonoBehaviour
         var toRoot = root.worldToLocalMatrix;
         foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
         {
+            if (!WillShow(renderer, root))
+                continue;
             Mesh? mesh = renderer switch
             {
                 SkinnedMeshRenderer skinned => skinned.sharedMesh,

@@ -78,15 +78,17 @@ def hook(x, y, z, reach=0.13, rise=0.06):
             ((x - r, y + reach - 2 * r, z - r), (x + r, y + reach, z + rise), 1, 0.004)]  # tip
 
 
-def peg(x, y, z, reach=0.11):
-    """Turned wooden peg with an iron ferrule."""
-    return [((x - 0.018, y, z - 0.018), (x + 0.018, y + reach, z + 0.018), 0, 0.008),
-            ((x - 0.026, y + reach - 0.02, z - 0.026), (x + 0.026, y + reach, z + 0.026), 1, 0.006)]
+def peg(x, y, z, reach=0.11, d=1):
+    """Turned wooden peg with an iron ferrule; d = -1 points it out of the back."""
+    reach *= d
+    return [((x - 0.018, min(y, y + reach), z - 0.018), (x + 0.018, max(y, y + reach), z + 0.018), 0, 0.008),
+            ((x - 0.026, min(y + reach, y + reach - 0.02 * d), z - 0.026),
+             (x + 0.026, max(y + reach, y + reach - 0.02 * d), z + 0.026), 1, 0.006)]
 
 
-def fork(x, y, z, reach=0.12, gap=0.075):
+def fork(x, y, z, reach=0.12, gap=0.075, d=1):
     """Two pegs a guard / axe head / shield rim rests on; the weapon hangs between them."""
-    return peg(x - gap / 2, y, z, reach) + peg(x + gap / 2, y, z, reach)
+    return peg(x - gap / 2, y, z, reach, d) + peg(x + gap / 2, y, z, reach, d)
 
 
 parts = []
@@ -125,6 +127,9 @@ if kind == "stand":
             x = -W / 2 + T + step * (i + 0.5)
             parts += fork(x, 0.065, tz + 0.05)
             slots.append(("fork", x, 0.065 + 0.06, tz + 0.05 + 0.02))
+            # second row out of the back of the bar (items face -Z there)
+            parts += fork(x, -0.045, tz + 0.05, d=-1)
+            slots.append(("fork_back", x, -0.045 - 0.06, tz + 0.05 + 0.02))
     BOUNDS = [-W / 2 - over, -FD / 2, 0.0, W / 2 + over, FD / 2, H]
 else:
     n = 5 if size == "big" else 3
@@ -234,12 +239,13 @@ def shield(x, y, z):         # rim resting on the fork
 
 show = {"hook": [tunic, cape, tunic, legs, tunic],
         "peg": [helmet, legs, helmet],
-        "fork": [sword, axe, shield, sword, mace, axe]}
+        "fork": [sword, axe, shield, sword, mace, axe],
+        "fork_back": [axe, sword, mace, shield, sword, axe]}
 seen = {}
 for where, x, y, z in slots:
     k = seen.get(where, 0)
     seen[where] = k + 1
-    show[where][k % len(show[where])](x, y - 0.04, z)
+    show[where][k % len(show[where])](x, y + (0.04 if where == "fork_back" else -0.04), z)
 
 
 def textured(mat, tex):

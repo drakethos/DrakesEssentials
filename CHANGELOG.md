@@ -1,7 +1,13 @@
 ﻿# Changelog
 
-## 0.1.1
-- **Armor on racks hangs worn**, the way an armor stand shows it: chest pieces and capes from the neck, helmets by the top, legs at the hips (baked once per item, so racks stay cheap).
+## 0.1.2-beta.1
+- Beta.
+- **Weapon rack poses** are per weapon: a configurable style, size, turn and offset (`rack-poses.yaml`), synced from the server. Reskinned weapons are posed as the item they look like.
+- Back row of a double-sided stand hangs facing the other way.
+- Display cases draw only the renderers that will show, so food on a case isn't sized or centred on its hidden table model.
+- Regenerated the big and small weapon stand models.
+
+- **Armor on racks hangs worn**, the way an armor stand shows it: chest pieces and capes from the neck, helmets by the top, legs at the hips (baked once per item, so racks stay cheap).
 - **Display Case holds 7 items** (was 6).
 - Small items on display cases no longer vanish once shrunk onto the jute (they keep their closest detail level).
 - Wall racks can go on tilted surfaces.

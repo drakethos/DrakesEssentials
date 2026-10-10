@@ -36,7 +36,7 @@ internal static class WeaponRack
         if (prefab.GetComponent<global::Container>() is { } c0)
         {
             c0.m_width = 6;
-            c0.m_height = 1;
+            c0.m_height = 2;
         }
         if (prefab.GetComponent<global::Piece>() is { } c1)
         {

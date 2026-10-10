@@ -66,9 +66,23 @@ internal static class EssentialsConfig
             "Cost of one sheet: Item:amount pairs, comma separated.");
         RacksEnabled = Synced(config, Racks, "Enabled", true,
             "Armor racks and weapon racks in the hammer (Furniture tab). Off hides them; placed racks stay.");
+        ItemRacks.RackPoseSettings.Bind(config, new PoseBinder(), "DrakesEssentials.rack-poses.yaml");
         foreach (var rack in ItemRacks.ItemRackPieces.Variants)
             RackCosts[rack.ConfigKey] = Synced(config, Racks, rack.ConfigKey, rack.DefaultCost,
                 $"{rack.Name.Replace("Drake_", "")} cost: Item:amount pairs, comma separated.");
+    }
+
+    /// <summary>Weapon rack pose settings ride this mod's server sync: the host's values are everyone's.</summary>
+    private sealed class PoseBinder : ItemRacks.IRackPoseBinder
+    {
+        public ConfigEntry<T> Bind<T>(ConfigFile config, string section, string key, T defaultValue, string description, AcceptableValueBase? range)
+        {
+            var entry = config.Bind(section, key, defaultValue, new ConfigDescription(description, range));
+            _sync.AddConfigEntry(entry).SynchronizedConfig = true;
+            return entry;
+        }
+
+        public bool CanEdit => _sync.IsSourceOfTruth;
     }
 
     private static ConfigEntry<T> Synced<T>(ConfigFile config, string section, string key, T value, string description)
