@@ -11,6 +11,14 @@ internal static class EssentialsLocalization
         loc.AddTranslation("English", "drake_display_case_desc", "Glass case to show your things (7 slots). Fill it from the door side.");
         loc.AddTranslation("English", "drake_display_case_small_name", "Small Display Case");
         loc.AddTranslation("English", "drake_display_case_small_desc", "Small glass case to show your things (3 slots). Fill it from the door side.");
+        loc.AddTranslation("English", "drake_display_mat_name", "Display Mat");
+        loc.AddTranslation("English", "drake_display_mat_desc", "A jute runner in an iron-bound tray (6 slots). Lay it on a table: what you put in it lies on show.");
+        loc.AddTranslation("English", "drake_display_mat_small_name", "Small Display Mat");
+        loc.AddTranslation("English", "drake_display_mat_small_desc", "A small jute runner in an iron-bound tray (3 slots). Lay it on a table: what you put in it lies on show.");
+        loc.AddTranslation("English", "drake_mailbox_name", "Mailbox");
+        loc.AddTranslation("English", "drake_mailbox_desc", "A Norse post box. Anyone can send items through the front slot; only those the ward allows can open the back.");
+        loc.AddTranslation("English", "drake_dropbox_name", "Drop Box");
+        loc.AddTranslation("English", "drake_dropbox_desc", "A slotted drop box for a table or counter. Customers send items through the lid; the owner opens the back.");
         loc.AddTranslation("English", "drake_armor_rack_name", "Armor Rack");
         loc.AddTranslation("English", "drake_armor_rack_desc", "Finewood rack to hang armor on (6 slots: hooks on top, pegs below). Armor only.");
         loc.AddTranslation("English", "drake_armor_rack_small_name", "Small Armor Rack");

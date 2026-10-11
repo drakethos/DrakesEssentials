@@ -3,6 +3,7 @@ using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using DrakesEssentials.DisplayCases;
 using DrakesEssentials.ItemRacks;
+using DrakesEssentials.Mail;
 using DrakesEssentials.Paper;
 using DrakesEssentials.PublicPieces;
 using HarmonyLib;
@@ -11,7 +12,7 @@ using Jotunn.Managers;
 namespace DrakesEssentials;
 
 /// <summary>
-/// The best pieces from the DrakeMods suite, stand-alone: display cases (DrakesItemShop), always-public doors and
+/// The best pieces from the DrakeMods suite, stand-alone: display cases, display mats, racks and mailboxes (DrakesItemShop), always-public doors and
 /// chests (LockSmith) and writable blank paper (DrakesRenameit). When the full mod is installed it provides its own
 /// version of a piece, so Essentials steps aside for that feature (same prefab names: worlds move between them).
 /// </summary>
@@ -57,6 +58,11 @@ public partial class EssentialsPlugin : BaseUnityPlugin
         else
             ItemRackPieces.Register();
 
+        if (IsInstalled(ItemShopGuid))
+            Log.LogInfo("DrakesItemShop is installed: it provides the mailbox and drop box.");
+        else
+            MailboxPieces.Register();
+
         // RenameIt's paper has other prefab names, so Essentials' sheets stay registered (placed ones keep working)
         // and are only taken out of the hammer (PaperPieces.Apply).
         PaperPieces.Register();
@@ -76,9 +82,13 @@ public partial class EssentialsPlugin : BaseUnityPlugin
     {
         DisplayCasePieces.Apply();
         ItemRackPieces.Apply();
+        MailboxPieces.Apply();
         PaperPieces.Apply();
         PublicPieceRegistration.Apply();
     }
+
+    /// <summary>X on the mailbox send warning sends and stops the warning from showing again.</summary>
+    private void Update() => MailboxSendWindow.PollKeys();
 
     internal static bool IsInstalled(string guid) => Chainloader.PluginInfos.ContainsKey(guid);
 }

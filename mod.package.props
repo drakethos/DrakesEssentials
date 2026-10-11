@@ -4,11 +4,11 @@
     <ThunderstoreAuthor>DrakeMods</ThunderstoreAuthor>
     <RootNamespace>DrakesEssentials</RootNamespace>
     <AssemblyName>DrakesEssentials</AssemblyName>
-    <Version>0.1.2-beta.1</Version>
+    <Version>0.2.0</Version>
     <BepInPluginName>DrakesEssentials</BepInPluginName>
     <BepInGuid>com.drakesworkshop.essentials</BepInGuid>
     <ModInfoClass>EssentialsPlugin</ModInfoClass>
-    <Description>The best DrakeMods pieces in one small mod: glass display cases that show what's inside, always-public doors and chests, and blank paper you write on like a sign. No DrakeModsLibs needed.</Description>
+    <Description>The best DrakeMods pieces in one small mod: glass display cases and mats that show what's inside, armor and weapon racks, mailboxes, always-public doors and chests, and blank paper you write on like a sign. No DrakeModsLibs needed.</Description>
     <WebsiteUrl>https://github.com/drakethos/DrakesEssentials</WebsiteUrl>
     <DeployAfterTargets>ILRepacker</DeployAfterTargets>
     <!-- Stand-alone: ServerSync is merged into this DLL (ILRepack.targets), no DrakeModsLibs. -->

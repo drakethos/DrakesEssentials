@@ -9,6 +9,8 @@ pieces you'd want, in one small mod.
 |-------|-----------|------|--------------|
 | **Display Case** / **Small Display Case** | Furniture | DrakesItemShop | Glass and wood cases (7 or 3 slots). What's inside lies on the jute, one spot per slot, flat and sized to fit. Fill it from the door side: the glass door slides open while you do. From the glass side it's just looked at. |
 | **Armor racks** / **Weapon racks** / **Wall racks** | Furniture | DrakesItemShop | Finewood racks with iron hooks and pegs. Free-standing armor and weapon racks (6 or 4 slots) take only armor or only weapons and shields; wall racks (5 or 3) take both. What's inside hangs on the rack: weapons and shields like on an item stand, armor upright on its hook. |
+| **Display Mat** / **Small Display Mat** | Furniture | DrakesItemShop | A jute tray you lay on a table; what you put in it lies on show, like a display case without the glass (6 or 3 slots). |
+| **Mailbox** / **Drop Box** | Furniture | DrakesItemShop | A post mailbox and a tabletop box. Anyone sends up to 3 stacks and a note through the front slot (one way); the back is a chest that wards and locks protect. The owner can set an allow list and an item filter (Shift+E). If DrakesItemShop is installed it provides them instead. |
 | **Public doors and chests** | Public | LockSmith | An always-open copy of every buildable door and chest, vanilla and other mods (`*_public`). Anyone can open them, wards or not. |
 | **Paper (wall)** / **Paper (flat)** | Furniture | DrakesRenameit | A blank sheet on a wall or lying flat. Write on it like a sign. |
 
@@ -29,6 +31,10 @@ to everyone and only admins can change them.
 | | `ArmorRackCost` / `SmallArmorRackCost` | `FineWood:12,BronzeNails:6` / `FineWood:8,BronzeNails:4` | |
 | | `WallRackCost` / `SmallWallRackCost` | `FineWood:8,BronzeNails:5` / `FineWood:5,BronzeNails:3` | Wall racks (armor and weapons). |
 | | `WeaponRackCost` / `SmallWeaponRackCost` | `FineWood:10,BronzeNails:6` / `FineWood:7,BronzeNails:4` | |
+| 6 - Display mats | `Enabled` | `true` | Show the mats in the hammer. |
+| | `DisplayMatCost` / `SmallDisplayMatCost` | `FineWood:2,JuteRed:2` / `FineWood:1,JuteRed:1` | |
+| 7 - Mailboxes | `Enabled` | `true` | Show the mailbox and drop box in the hammer. |
+| | `MailboxCost` / `DropBoxCost` | `FineWood:10,BronzeNails:6` / `FineWood:5,BronzeNails:4` | |
 
 Switches apply live and only show or hide pieces in the hammer: anything already built stays, and public pieces stay
 public.

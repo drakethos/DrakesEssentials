@@ -15,6 +15,8 @@ internal static class EssentialsConfig
     private const string Public = "3 - Public doors and chests";
     private const string Paper = "4 - Paper";
     private const string Racks = "5 - Armor and weapon racks";
+    private const string Mats = "6 - Display mats";
+    private const string Mailboxes = "7 - Mailboxes";
 
     private static ConfigSync _sync = null!;
 
@@ -25,6 +27,12 @@ internal static class EssentialsConfig
     public static ConfigEntry<bool> PaperEnabled = null!;
     public static ConfigEntry<string> PaperCost = null!;
     public static ConfigEntry<bool> RacksEnabled = null!;
+    public static ConfigEntry<bool> DisplayMatsEnabled = null!;
+    public static ConfigEntry<string> DisplayMatCost = null!;
+    public static ConfigEntry<string> SmallDisplayMatCost = null!;
+    public static ConfigEntry<bool> MailboxesEnabled = null!;
+    public static ConfigEntry<string> MailboxCost = null!;
+    public static ConfigEntry<string> DropBoxCost = null!;
     private static readonly System.Collections.Generic.Dictionary<string, ConfigEntry<string>> RackCosts = new();
 
     /// <summary>A rack's build cost (config key per rack, see <see cref="ItemRacks.ItemRackPieces.Variants"/>).</summary>
@@ -66,6 +74,19 @@ internal static class EssentialsConfig
             "Cost of one sheet: Item:amount pairs, comma separated.");
         RacksEnabled = Synced(config, Racks, "Enabled", true,
             "Armor racks and weapon racks in the hammer (Furniture tab). Off hides them; placed racks stay.");
+        DisplayMatsEnabled = Synced(config, Mats, "Enabled", true,
+            "Display Mat and Small Display Mat in the hammer (Furniture tab): a jute tray you lay on a table; what you put in it lies on show. Off hides them; placed mats stay.");
+        DisplayMatCost = Synced(config, Mats, "DisplayMatCost", "FineWood:2,JuteRed:2",
+            "Display Mat cost: Item:amount pairs, comma separated.");
+        SmallDisplayMatCost = Synced(config, Mats, "SmallDisplayMatCost", "FineWood:1,JuteRed:1",
+            "Small Display Mat cost: Item:amount pairs, comma separated.");
+        MailboxesEnabled = Synced(config, Mailboxes, "Enabled", true,
+            "Mailbox (post) and Drop Box (tabletop) in the hammer (Furniture tab): anyone sends items through the front, the back is a chest wards protect. Off hides them; placed ones stay.");
+        MailboxCost = Synced(config, Mailboxes, "MailboxCost", "FineWood:10,BronzeNails:6",
+            "Mailbox cost: Item:amount pairs, comma separated.");
+        DropBoxCost = Synced(config, Mailboxes, "DropBoxCost", "FineWood:5,BronzeNails:4",
+            "Drop Box cost: Item:amount pairs, comma separated.");
+        Mail.MailboxSettings.Bind(config);
         ItemRacks.RackPoseSettings.Bind(config, new PoseBinder(), "DrakesEssentials.rack-poses.yaml");
         foreach (var rack in ItemRacks.ItemRackPieces.Variants)
             RackCosts[rack.ConfigKey] = Synced(config, Racks, rack.ConfigKey, rack.DefaultCost,

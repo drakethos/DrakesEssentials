@@ -1,5 +1,11 @@
 ﻿# Changelog
 
+## 0.2.0
+- **Mailbox and Drop Box** (Furniture tab): a post-mounted mailbox and a tabletop box. Anyone can send up to 3 stacks and a note through the front slot (one way, with a warning before sending); the back is a plain chest that wards and locks protect. Hinged flap and door animate, the cavity is black inside, and the send window sits to the right so you can watch the box open. Owners set an allow list, an item filter and an open/closed switch (Shift+E). Costs are in config section `7 - Mailboxes`. If DrakesItemShop is installed it provides these pieces instead, so they are never doubled.
+- **Display Mat and Small Display Mat** (Furniture tab): a jute runner in an iron-bound tray you lay on a table; what you put in it lies on show. Config section `6 - Display mats`.
+- Messages that tell you why something can't be done are shown through a small shared helper that works on every game version.
+- Stable release (no longer a beta).
+
 ## 0.1.2-beta.1
 - Beta.
 - **Weapon rack poses** are per weapon: a configurable style, size, turn and offset (`rack-poses.yaml`), synced from the server. Reskinned weapons are posed as the item they look like.

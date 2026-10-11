@@ -27,27 +27,7 @@ internal static class ItemRackPatches
         return true;
     }
 
-    /// <summary>
-    /// Character.Message without binding to one signature: Valheim 1.0 added a parameter, and a direct call compiled
-    /// against the older API stubs throws at runtime.
-    /// </summary>
-    private static void Tell(Character character, string text)
-    {
-        _message ??= System.Array.Find(typeof(Character).GetMethods(), m => m.Name == "Message"
-            && m.GetParameters().Length >= 2 && m.GetParameters()[0].ParameterType == typeof(MessageHud.MessageType));
-        if (_message == null)
-            return;
-        var parameters = _message.GetParameters();
-        var args = new object?[parameters.Length];
-        args[0] = MessageHud.MessageType.Center;
-        args[1] = text;
-        for (var i = 2; i < parameters.Length; i++)
-            args[i] = parameters[i].HasDefaultValue ? parameters[i].DefaultValue
-                : parameters[i].ParameterType.IsValueType ? System.Activator.CreateInstance(parameters[i].ParameterType) : null;
-        _message.Invoke(character, args);
-    }
-
-    private static System.Reflection.MethodInfo? _message;
+    private static void Tell(Character character, string text) => Ui.HudText.Tell(character, text);
 
     [HarmonyPatch(typeof(Inventory), "AddItem",
         new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(int), typeof(int), typeof(bool) })]
