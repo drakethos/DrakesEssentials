@@ -1,5 +1,13 @@
 ﻿# Changelog
 
+## Unreleased
+
+### Fixed
+
+- Packaging only: the Hexium/Thunderstore zip now puts the DLL and every data folder under `plugins/`, so Gale and r2modman
+  keep the folder structure (they flatten anything outside `plugins/`). A CI guard (`check-gale-layout.py`) fails the build
+  if that ever regresses. No code or behaviour change for players.
+
 ## 0.2.0
 - **Mailbox and Drop Box** (Furniture tab): a post-mounted mailbox and a tabletop box. Anyone can send up to 3 stacks and a note through the front slot (one way, with a warning before sending); the back is a plain chest that wards and locks protect. Hinged flap and door animate, the cavity is black inside, and the send window sits to the right so you can watch the box open. Owners set an allow list, an item filter and an open/closed switch (Shift+E). Costs are in config section `7 - Mailboxes`. If DrakesItemShop is installed it provides these pieces instead, so they are never doubled.
 - **Display Mat and Small Display Mat** (Furniture tab): a jute runner in an iron-bound tray you lay on a table; what you put in it lies on show. Config section `6 - Display mats`.

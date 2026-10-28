@@ -76,8 +76,9 @@
   </Target>
   <!-- After ILRepack, so the packaged DLL already carries ServerSync. -->
   <Target Name="PackageMod" AfterTargets="ILRepacker" DependsOnTargets="WriteThunderstoreManifest">
+    <!-- Gale/r2modman keep folder structure only under plugins/ (patchers/ monomod/ core/ config/): DLL and data live there; manifest.json, icon.png, README.md, CHANGELOG.md stay at the zip root. -->
     <MakeDir Directories="$(ThunderstoreFolder)" />
-    <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="$(ThunderstoreFolder)" />
+    <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="$(ThunderstoreFolder)\plugins" />
     <Copy SourceFiles="$(TargetDir)README.md" DestinationFiles="$(ThunderstoreFolder)\README.md" />
     <Copy SourceFiles="$(TargetDir)icon.png" DestinationFiles="$(ThunderstoreFolder)\icon.png" />
     <Copy SourceFiles="$(TargetDir)CHANGELOG.md" DestinationFiles="$(ThunderstoreFolder)\CHANGELOG.md" />
