@@ -23,9 +23,9 @@ namespace DrakesEssentials;
 [BepInDependency(RenameItGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public partial class EssentialsPlugin : BaseUnityPlugin
 {
-    internal const string ItemShopGuid = "com.drakesworkshop.itemshop";
-    internal const string LockSmithGuid = "com.drakesworkshop.locksmith";
-    internal const string RenameItGuid = "com.drakesworkshop.renameit";
+    internal const string ItemShopGuid = "com.drakemods.itemshop";
+    internal const string LockSmithGuid = "com.drakemods.locksmith";
+    internal const string RenameItGuid = "com.drakemods.renameit";
 
     internal static EssentialsPlugin Instance = null!;
     internal static ManualLogSource Log = null!;
@@ -37,12 +37,17 @@ public partial class EssentialsPlugin : BaseUnityPlugin
         Instance = this;
         Log = Logger;
         EssentialsConfig.Bind(Config);
+        Apron.ApronSettings.Bind(Config);
         EssentialsLocalization.Add();
         _harmony.PatchAll();
         PrefabManager.OnVanillaPrefabsAvailable += RegisterPieces;
         EssentialsConfig.Changed += ApplySettings;
         Logger.LogInfo($"{ModName} {Version} loaded.");
     }
+
+#if DEBUG
+    private void OnGUI() => Apron.ApronTuner.Draw();
+#endif
 
     private void RegisterPieces()
     {
@@ -62,6 +67,11 @@ public partial class EssentialsPlugin : BaseUnityPlugin
             Log.LogInfo("DrakesItemShop is installed: it provides the mailbox and drop box.");
         else
             MailboxPieces.Register();
+
+        if (IsInstalled(ItemShopGuid))
+            Log.LogInfo("DrakesItemShop is installed: it provides the Shopkeeper's Apron.");
+        else
+            Apron.ApronItem.Register();
 
         // RenameIt's paper has other prefab names, so Essentials' sheets stay registered (placed ones keep working)
         // and are only taken out of the hammer (PaperPieces.Apply).
@@ -88,7 +98,13 @@ public partial class EssentialsPlugin : BaseUnityPlugin
     }
 
     /// <summary>X on the mailbox send warning sends and stops the warning from showing again.</summary>
-    private void Update() => MailboxSendWindow.PollKeys();
+    private void Update()
+    {
+        MailboxSendWindow.PollKeys();
+#if DEBUG
+        Apron.ApronTuner.Tick();
+#endif
+    }
 
     internal static bool IsInstalled(string guid) => Chainloader.PluginInfos.ContainsKey(guid);
 }

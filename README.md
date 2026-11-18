@@ -16,7 +16,7 @@ pieces you'd want, in one small mod.
 
 ## Config (server-synced)
 
-`BepInEx/config/com.drakesworkshop.essentials.cfg`. With `LockConfiguration` on (default), the server's values apply
+`BepInEx/config/com.drakemods.essentials.cfg`. With `LockConfiguration` on (default), the server's values apply
 to everyone and only admins can change them.
 
 | Section | Setting | Default | |

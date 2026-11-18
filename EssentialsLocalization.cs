@@ -19,6 +19,13 @@ internal static class EssentialsLocalization
         loc.AddTranslation("English", "drake_mailbox_desc", "A Norse post box. Anyone can send items through the front slot; only those the ward allows can open the back.");
         loc.AddTranslation("English", "drake_dropbox_name", "Drop Box");
         loc.AddTranslation("English", "drake_dropbox_desc", "A slotted drop box for a table or counter. Customers send items through the lid; the owner opens the back.");
+        foreach (var apron in Apron.ApronStyles.All)
+        {
+            loc.AddTranslation("English", apron.PrefabName.ToLowerInvariant() + "_name", apron.Name);
+            loc.AddTranslation("English", apron.PrefabName.ToLowerInvariant() + "_desc", apron.Description);
+        }
+        loc.AddTranslation("English", "drake_shopapron_effect", "Open for business");
+        loc.AddTranslation("English", "drake_shopapron_effect_tip", "Carry a little more: +50 carry weight.");
         loc.AddTranslation("English", "drake_armor_rack_name", "Armor Rack");
         loc.AddTranslation("English", "drake_armor_rack_desc", "Finewood rack to hang armor on (6 slots: hooks on top, pegs below). Armor only.");
         loc.AddTranslation("English", "drake_armor_rack_small_name", "Small Armor Rack");

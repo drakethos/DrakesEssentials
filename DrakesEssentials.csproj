@@ -53,6 +53,8 @@
     <Compile Include="Forge\Gltf\*.cs" />
     <Compile Include="DisplayCases\*.cs" />
     <Compile Include="ItemRacks\*.cs" />
+    <Compile Include="Apron\*.cs" Exclude="Apron\ApronTuner.cs;Apron\ApronAutoFit.cs" />
+    <Compile Include="Apron\ApronTuner.cs;Apron\ApronAutoFit.cs" Condition="'$(Configuration)' == 'Debug'" />
     <Compile Include="Paper\*.cs" />
     <Compile Include="PublicPieces\*.cs" />
     <Compile Include="Ui\*.cs" />
