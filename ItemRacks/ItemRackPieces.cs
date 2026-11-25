@@ -113,10 +113,13 @@ internal static class ItemRackPieces
                 Requirements = PieceCosts.Requirements(EssentialsConfig.RackCost(variant), variant.Name, FallbackCostItem, FallbackCost),
             };
 
+            if (EssentialsPlugin.SkipIfRegistered(variant.Name, "Racks"))
+                continue;
+
             var custom = new CustomPiece(variant.Name, "piece_chest_wood", config);
             if (!custom.IsValid())
             {
-                EssentialsPlugin.Log.LogError($"Failed to register {variant.Name}: piece_chest_wood has no Piece.");
+                EssentialsPlugin.Log.LogError($"Failed to register {variant.Name}: could not clone piece_chest_wood.");
                 continue;
             }
 

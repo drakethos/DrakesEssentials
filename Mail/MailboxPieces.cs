@@ -65,10 +65,13 @@ internal static class MailboxPieces
                 Requirements = PieceCosts.Requirements(variant.Cost(), variant.Name, "FineWood", variant.FallbackCost),
             };
 
+            if (EssentialsPlugin.SkipIfRegistered(variant.Name, "Mailboxes"))
+                continue;
+
             var custom = new CustomPiece(variant.Name, "piece_chest_wood", config);
             if (!custom.IsValid())
             {
-                EssentialsPlugin.Log.LogError($"Failed to register {variant.Name}: piece_chest_wood has no Piece.");
+                EssentialsPlugin.Log.LogError($"Failed to register {variant.Name}: could not clone piece_chest_wood.");
                 continue;
             }
 

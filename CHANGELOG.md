@@ -1,5 +1,10 @@
 ﻿# Changelog
 
+## Unreleased
+
+- **Fix: the full mods win again.** ItemShop, LockSmith and RenameIt moved to new plugin ids (`com.drakemods.*`), and Essentials only knew the old ones, so with ItemShop installed it registered its own display cases, racks and mailboxes next to ItemShop's: the same piece names, about 60 red Jotunn errors on every start, and the second set lost. Essentials now recognises old and new ids, steps aside for the full mod's features, and also skips any piece another mod already registered under the same name (one Info line instead of errors).
+- With **LockSmith** installed, Essentials no longer adds its own public doors and chests; with the **RenameIt 1.4 beta**, its paper sheets are hidden from the hammer as intended.
+
 ## 0.2.1
 
 - **Packaging fix:** the zip now ships the DLL under `plugins/` so Gale and r2modman keep the folder layout (they flatten anything outside `plugins/`). A build guard (`check-gale-layout.py`) fails the release if that regresses. No code or gameplay change.

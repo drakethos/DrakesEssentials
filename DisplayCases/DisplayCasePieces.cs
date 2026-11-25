@@ -62,10 +62,13 @@ internal static class DisplayCasePieces
                 Requirements = PieceCosts.Requirements(variant.Cost(), variant.Name, variant.FallbackCostItem, variant.FallbackCost),
             };
 
+            if (EssentialsPlugin.SkipIfRegistered(variant.Name, "Display cases"))
+                continue;
+
             var custom = new CustomPiece(variant.Name, "piece_chest_wood", config);
             if (!custom.IsValid())
             {
-                EssentialsPlugin.Log.LogError($"Failed to register {variant.Name}: piece_chest_wood has no Piece.");
+                EssentialsPlugin.Log.LogError($"Failed to register {variant.Name}: could not clone piece_chest_wood.");
                 continue;
             }
 
